@@ -11,7 +11,7 @@ use std::{
     convert::AsRef,
     env,
     ffi::{OsStr, OsString},
-    fmt::Display,
+    fmt::{Display, Write as _},
     fs::{self, DirEntry},
     io::{BufRead, BufReader, Read, Write},
     path::{Path, PathBuf},
@@ -634,7 +634,7 @@ impl FromStr for PythonVersion {
     }
 }
 
-#[derive(Debug, Copy, Clone, PartialEq)]
+#[derive(Debug, Copy, Clone, PartialEq, Eq)]
 pub enum PythonImplementation {
     CPython,
     PyPy,
@@ -742,7 +742,7 @@ fn require_libdir_for_target(target: &Triple) -> bool {
 ///
 /// Usually this is collected from the environment (i.e. `PYO3_CROSS_*` and `CARGO_CFG_TARGET_*`)
 /// when a cross-compilation configuration is detected.
-#[derive(Debug, PartialEq)]
+#[derive(Debug, PartialEq, Eq)]
 pub struct CrossCompileConfig {
     /// The directory containing the Python library to link against.
     pub lib_dir: Option<PathBuf>,
@@ -1080,7 +1080,7 @@ impl BuildFlags {
         script.push_str("config = sysconfig.get_config_vars()\n");
 
         for k in &BuildFlags::ALL {
-            script.push_str(&format!("print(config.get('{}', '0'))\n", k));
+            writeln!(script, "print(config.get('{k}', '0'))").unwrap();
         }
 
         let stdout = run_python_script(interpreter.as_ref(), &script)?;
@@ -1229,7 +1229,7 @@ fn find_sysconfigdata(cross: &CrossCompileConfig) -> Result<Option<PathBuf>> {
             sysconfigdata files found:",
         );
         for path in sysconfig_paths {
-            error_msg += &format!("\n\t{}", path.display());
+            write!(error_msg, "\n\t{}", path.display()).unwrap();
         }
         bail!("{}\n", error_msg);
     }

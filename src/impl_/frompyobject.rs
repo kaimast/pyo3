@@ -1,5 +1,7 @@
 use crate::{exceptions::PyTypeError, FromPyObject, PyAny, PyErr, PyResult, Python};
 
+use std::fmt::Write;
+
 #[cold]
 pub fn failed_to_extract_enum(
     py: Python<'_>,
@@ -16,12 +18,12 @@ pub fn failed_to_extract_enum(
     );
     for ((variant_name, error_name), error) in variant_names.iter().zip(error_names).zip(errors) {
         err_msg.push('\n');
-        err_msg.push_str(&format!(
+        write!(err_msg,
             "- variant {variant_name} ({error_name}): {error_msg}",
             variant_name = variant_name,
             error_name = error_name,
             error_msg = extract_traceback(py, error.clone_ref(py)),
-        ));
+        ).unwrap();
     }
     PyTypeError::new_err(err_msg)
 }

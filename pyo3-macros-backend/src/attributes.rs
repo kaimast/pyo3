@@ -57,7 +57,7 @@ impl<T: ToTokens> ToTokens for LitStrValue<T> {
 }
 
 /// A helper type which parses a name via a literal string
-#[derive(Clone, Debug, PartialEq)]
+#[derive(Clone, Debug, PartialEq, Eq)]
 pub struct NameLitStr(pub Ident);
 
 impl Parse for NameLitStr {

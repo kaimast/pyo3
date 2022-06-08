@@ -615,7 +615,7 @@ impl<'a> FnSpec<'a> {
     }
 }
 
-#[derive(Clone, PartialEq, Debug)]
+#[derive(Clone, PartialEq, Eq, Debug)]
 struct MethodAttributes {
     ty: Option<MethodTypeAttribute>,
     args: Vec<Argument>,
